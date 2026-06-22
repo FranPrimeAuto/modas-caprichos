@@ -734,6 +734,7 @@ function StockView({stock,onUpdate,setToast,onNeedKey}){
   };
 
   const confirmar=()=>{onUpdate(s=>[...s,...prev]);setPrev([]);setTxt("");setArchInfo(null);setModo("lista");setToast({msg:`${prev.length} artículos añadidos al stock`});};
+  const actualizarPrev=(i,campo,valor)=>setPrev(p=>p.map((x,j)=>j===i?{...x,[campo]:valor}:x));
   const quitarOferta=id=>onUpdate(s=>s.map(p=>p.id===id?{...p,pvpOferta:undefined}:p));
 
   return(
@@ -790,17 +791,23 @@ function StockView({stock,onUpdate,setToast,onNeedKey}){
             <div><div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:T.sage}}>✓ {prev.length} artículos detectados</div><div style={{fontSize:12,color:T.textSoft,marginTop:1}}>Revisa y confirma</div></div>
             <div style={{display:"flex",gap:8}}><button className="btn-ghost" onClick={()=>setModo("ia")}>← Repetir</button><button className="btn-rose" onClick={confirmar}>✓ Añadir al stock</button></div>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(175px,1fr))",gap:9}}>
+          <div style={{fontSize:12,color:T.textSoft,marginBottom:10,background:T.goldLight,padding:"8px 12px",borderRadius:8,border:`1px solid ${T.gold}30`}}>
+            ✏️ Revisa y edita el <strong>PVP</strong> de cada artículo antes de añadirlo al stock.
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(185px,1fr))",gap:9}}>
             {prev.map((p,i)=>(
               <div key={i} style={{background:T.sageLight,borderRadius:11,padding:12,border:`1px solid ${T.sage}30`,animation:`fadeUp .3s ease ${i*.04}s both`}}>
                 <div style={{fontSize:22,marginBottom:4}}>{p.emoji||"👗"}</div>
                 <div style={{fontWeight:600,fontSize:12,color:T.text,marginBottom:2}}>{p.nombre}</div>
-                <div style={{fontSize:11,color:T.textSoft,marginBottom:4}}>{p.cat} · {p.talla} · {p.color}</div>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:11}}>
-                  <span style={{color:T.textSoft}}>Coste: {fmt(p.coste)}</span>
-                  <span style={{color:T.rose,fontWeight:700}}>PVP: {fmt(p.pvp)}</span>
-                </div>
-                <div style={{fontSize:11,color:T.textSoft,marginTop:2}}>{p.stock} uds · {p.proveedor}</div>
+                <div style={{fontSize:11,color:T.textSoft,marginBottom:6}}>{p.cat} · {p.talla} · {p.color}</div>
+                <div style={{fontSize:11,color:T.textSoft,marginBottom:6}}>Coste: <strong>{fmt(p.coste)}</strong> · {p.stock} uds</div>
+                <label style={{fontSize:10,fontWeight:700,color:T.rose,letterSpacing:".05em",display:"block",marginBottom:3}}>PVP (€)</label>
+                <input
+                  type="number" min="0" step="0.01"
+                  value={p.pvp}
+                  onChange={e=>actualizarPrev(i,"pvp",parseFloat(e.target.value)||0)}
+                  style={{width:"100%",padding:"6px 9px",border:`2px solid ${T.rose}`,borderRadius:7,fontSize:14,fontWeight:700,color:T.rose,fontFamily:"monospace",outline:"none",background:"#fff"}}
+                />
               </div>
             ))}
           </div>
